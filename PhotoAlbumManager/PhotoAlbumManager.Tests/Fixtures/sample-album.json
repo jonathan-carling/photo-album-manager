@@ -1,0 +1,48 @@
+{
+    "title": "My Photo Album",
+    "description": "A collection of memorable moments",
+    "date": {
+        "from": "2024-06-01 00:00:00",
+        "to": "2024-06-30 23:59:59"
+    },
+    "location": "Various Locations",
+    "owner": "John Doe",
+    "items": [
+        {
+            "id": 1,
+            "title": "Sunset at the Beach",
+            "description": "A beautiful sunset captured at the beach.",
+            "date_taken": "2024-06-05 18:30:00",
+            "order": 1,
+            "location": "Santa Monica, CA",
+            "owner": "John Doe",
+            "file_path": "photos/sunset_beach.jpg",
+            "tags": ["sunset", "beach", "vacation"],
+            "people": ["Alice", "Bob"]
+        },
+        {
+            "id": 2,
+            "title": "Mountain Hike",
+            "description": "Hiking through the mountains during summer.",
+            "date_taken": "2024-06-12 09:00:00",
+            "order": 2,
+            "location": "Rocky Mountains, CO",
+            "owner": "John Doe",
+            "file_path": "photos/mountain_hike.jpg",
+            "tags": ["mountains", "hike", "vacation"],
+            "people": ["Alice", "Jonny"]
+        },
+        {
+            "id": 3,
+            "title": "City Lights",
+            "description": "Night view of the city skyline.",
+            "date_taken": "2024-06-20 20:00:00",
+            "order": 3,
+            "location": "New York City, NY",
+            "owner": "John Doe",
+            "file_path": "photos/city_lights.jpg",
+            "tags": ["city", "lights", "night"],
+            "people": ["Alice", "Bob"]
+        }
+    ]
+}

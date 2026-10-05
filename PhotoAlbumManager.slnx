@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/PhotoAlbumManager/">
+    <Project Path="PhotoAlbumManager/PhotoAlbumManager.App/PhotoAlbumManager.App.csproj">
+      <Platform Project="x64" />
+    </Project>
+    <Project Path="PhotoAlbumManager/PhotoAlbumManager.Core/PhotoAlbumManager.Core.csproj" />
+    <Project Path="PhotoAlbumManager/PhotoAlbumManager.Tests/PhotoAlbumManager.Tests.csproj" />
+  </Folder>
+</Solution>
