@@ -98,9 +98,14 @@ public sealed class SqliteAlbumStore : IDisposable
                 UpdateAlbum(album, transaction);
 
             var kept = new List<int>(album.Items.Count);
+            // Item numbers are chosen per album in memory, so a new album reuses 1, 2, 3...
+            // Only rows that already belonged to this album before this save are updates.
+            // Checking the database inside the loop treats a row just inserted for this album
+            // as an update of a later photo that still has that same temporary number.
+            var existingIds = LoadAlbumItemIds(album.Id, transaction);
             foreach (var item in album.Items)
             {
-                if (item.Id > 0 && ItemBelongsToAlbum(item.Id, album.Id, transaction))
+                if (item.Id > 0 && existingIds.Remove(item.Id))
                     UpdateItem(album.Id, item, transaction);
                 else
                 {
@@ -411,6 +416,19 @@ public sealed class SqliteAlbumStore : IDisposable
         command.Parameters.AddWithValue("$id", itemId);
         var found = command.ExecuteScalar();
         return found is long owner && owner == albumId;
+    }
+
+    private HashSet<int> LoadAlbumItemIds(int albumId, SqliteTransaction transaction)
+    {
+        var ids = new HashSet<int>();
+        using var command = _connection.CreateCommand();
+        command.Transaction = transaction;
+        command.CommandText = "SELECT Id FROM Items WHERE AlbumId = $album";
+        command.Parameters.AddWithValue("$album", albumId);
+        using var reader = command.ExecuteReader();
+        while (reader.Read())
+            ids.Add(reader.GetInt32(0));
+        return ids;
     }
 
     private void UpdateItem(int albumId, AlbumItem item, SqliteTransaction transaction)

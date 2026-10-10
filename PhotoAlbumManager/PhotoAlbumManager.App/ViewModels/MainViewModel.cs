@@ -482,11 +482,17 @@ public partial class MainViewModel : ObservableObject
         if (ReferenceEquals(incoming, SelectedItem))
             return true;
 
-        var id = incoming?.Id;
         if (!await EnsureCanLeaveAsync(restoreOnDiscard: true))
             return false;
 
-        var resolved = id is int itemId ? Items.FirstOrDefault(item => item.Id == itemId) : null;
+        MediaItemViewModel? resolved = null;
+        if (incoming is not null)
+        {
+            resolved = Items.Contains(incoming)
+                ? incoming
+                : Items.FirstOrDefault(item => item.Id == incoming.Id);
+        }
+
         SelectItem(resolved);
         return true;
     }
