@@ -400,7 +400,14 @@
                             <TextBox Text="{x:Bind ViewModel.ItemDescription, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" TextWrapping="Wrap" Height="72" />
 
                             <TextBlock Text="Date taken" Style="{StaticResource FieldLabelStyle}" />
-                            <TextBox PlaceholderText="yyyy-MM-dd HH:mm:ss" Text="{x:Bind ViewModel.ItemDateTakenText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <Grid ColumnSpacing="8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBox AutomationProperties.AutomationId="ItemDateTakenBox" PlaceholderText="yyyy-MM-dd HH:mm:ss" Text="{x:Bind ViewModel.ItemDateTakenText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" />
+                                <Button Grid.Column="1" AutomationProperties.AutomationId="DateTakenFromFileButton" Content="From file" Command="{x:Bind ViewModel.UseFileDateTakenCommand}" ToolTipService.ToolTip="Use the Date taken value from the file's Windows properties" VerticalAlignment="Center" />
+                            </Grid>
 
                             <TextBlock Text="Location" Style="{StaticResource FieldLabelStyle}" />
                             <ComboBox AutomationProperties.AutomationId="ItemLocationBox" ItemsSource="{x:Bind ViewModel.LocationChoices, Mode=OneWay}" SelectedItem="{x:Bind ViewModel.SelectedItemLocation, Mode=TwoWay}" DisplayMemberPath="Name" HorizontalAlignment="Stretch" />

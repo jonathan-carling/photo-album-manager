@@ -384,6 +384,51 @@ public partial class MainViewModel : ObservableObject
         StatusText = "Item removed from the album. The media file was not deleted.";
     }
 
+    [RelayCommand(CanExecute = nameof(CanUseFileDateTaken))]
+    private async Task UseFileDateTakenAsync()
+    {
+        if (SelectedItem is null || _media is null)
+            return;
+
+        PullEditorIntoDocument();
+        string absolute;
+        try
+        {
+            absolute = _media.ToAbsolute(SelectedItem.Model.FilePath);
+        }
+        catch (Exception ex)
+        {
+            await _ui.ShowMessageAsync("Date taken", ex.Message);
+            return;
+        }
+
+        if (!File.Exists(absolute))
+        {
+            await _ui.ShowMessageAsync("Date taken", "The file was not found in the media root.");
+            return;
+        }
+
+        DateTime? taken;
+        try
+        {
+            taken = await FileDateTaken.ReadAsync(absolute);
+        }
+        catch (Exception ex)
+        {
+            await _ui.ShowMessageAsync("Date taken", ex.Message);
+            return;
+        }
+
+        if (taken is null)
+        {
+            await _ui.ShowMessageAsync("Date taken", "Windows has no Date taken value for this file.");
+            return;
+        }
+
+        ItemDateTakenText = AlbumDateText.FormatValue(taken.Value);
+        StatusText = "Date taken set from the file.";
+    }
+
     [RelayCommand(CanExecute = nameof(CanRefresh))]
     private async Task RefreshAsync()
     {
@@ -1508,6 +1553,7 @@ public partial class MainViewModel : ObservableObject
         AddMediaCommand.NotifyCanExecuteChanged();
         SetCoverCommand.NotifyCanExecuteChanged();
         RemoveItemCommand.NotifyCanExecuteChanged();
+        UseFileDateTakenCommand.NotifyCanExecuteChanged();
         RefreshCommand.NotifyCanExecuteChanged();
         ManageTagsCommand.NotifyCanExecuteChanged();
         ManagePeopleCommand.NotifyCanExecuteChanged();
@@ -1529,6 +1575,8 @@ public partial class MainViewModel : ObservableObject
         && _document?.CoverItemId != SelectedItem.Id;
 
     private bool CanRemoveItem() => SelectedItem is not null && !IsLoadingItems;
+
+    private bool CanUseFileDateTaken() => SelectedItem is not null && !IsLoadingItems;
 
     private bool CanRefresh() => _store is not null;
 
