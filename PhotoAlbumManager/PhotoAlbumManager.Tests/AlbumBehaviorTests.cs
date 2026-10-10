@@ -175,6 +175,45 @@ public class AlbumBehaviorTests
     }
 
     [Fact]
+    public void Second_album_keeps_every_photo_when_item_numbers_overlap_the_first_album()
+    {
+        var root = Path.Combine(Path.GetTempPath(), "pam-ids-" + Guid.NewGuid().ToString("N"));
+        var store = new SqliteAlbumStore(Path.Combine(root, "albums"), Path.Combine(root, "media"));
+        try
+        {
+            var first = AlbumEditor.CreateNew(new DateTime(2015, 6, 24), "Album A");
+            for (var number = 1; number <= 9; number++)
+                AlbumEditor.AddMedia(first, $@"\a{number}.jpg");
+            store.Save(first);
+
+            var second = AlbumEditor.CreateNew(new DateTime(2015, 6, 25), "Album B");
+            for (var number = 1; number <= 18; number++)
+                AlbumEditor.AddMedia(second, $@"\b{number}.jpg");
+            second.CoverItemId = second.Items.Single(item => item.FilePath == @"\b12.jpg").Id;
+            store.Save(second);
+
+            var savedFirst = store.Read(first.Id);
+            var savedSecond = store.Read(second.Id);
+            Assert.Equal(Enumerable.Range(1, 9).Select(number => $@"\a{number}.jpg"), savedFirst.Items.Select(item => item.FilePath));
+            Assert.Equal(Enumerable.Range(1, 18).Select(number => $@"\b{number}.jpg"), savedSecond.Items.Select(item => item.FilePath));
+            Assert.Equal(18, savedSecond.Items.Select(item => item.Id).Distinct().Count());
+            Assert.Empty(savedFirst.Items.Select(item => item.Id).Intersect(savedSecond.Items.Select(item => item.Id)));
+            Assert.Equal(@"\b12.jpg", savedSecond.Items.Single(item => item.Id == savedSecond.CoverItemId).FilePath);
+
+            savedSecond.Items[0].Title = "kept";
+            store.Save(savedSecond);
+            var resaved = store.Read(second.Id);
+            Assert.Equal(Enumerable.Range(1, 18).Select(number => $@"\b{number}.jpg"), resaved.Items.Select(item => item.FilePath));
+            Assert.Equal("kept", resaved.Items[0].Title);
+        }
+        finally
+        {
+            store.Dispose();
+            Directory.Delete(root, recursive: true);
+        }
+    }
+
+    [Fact]
     public void Duplicate_catalog_names_are_rejected()
     {
         var root = Path.Combine(Path.GetTempPath(), "pam-dup-" + Guid.NewGuid().ToString("N"));
