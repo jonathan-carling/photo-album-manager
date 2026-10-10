@@ -346,22 +346,49 @@
                             <TextBox Text="{x:Bind ViewModel.AlbumDescription, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" TextWrapping="Wrap" Height="72" />
 
                             <TextBlock Text="Date from" Style="{StaticResource FieldLabelStyle}" />
-                            <TextBox PlaceholderText="yyyy-MM-dd HH:mm:ss" Text="{x:Bind ViewModel.AlbumDateFromText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <Grid ColumnSpacing="8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBox AutomationProperties.AutomationId="AlbumDateFromBox" PlaceholderText="yyyy-MM-dd HH:mm:ss" Text="{x:Bind ViewModel.AlbumDateFromText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" />
+                                <Button Grid.Column="1" AutomationProperties.AutomationId="ApplyDateFromButton" Content="Apply to all" Command="{x:Bind ViewModel.ApplyDateFromCommand}" ToolTipService.ToolTip="Set Date taken on every item in this album" VerticalAlignment="Center" />
+                            </Grid>
 
                             <TextBlock Text="Date to" Style="{StaticResource FieldLabelStyle}" />
                             <TextBox PlaceholderText="yyyy-MM-dd HH:mm:ss" Text="{x:Bind ViewModel.AlbumDateToText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 
                             <TextBlock Text="Location" Style="{StaticResource FieldLabelStyle}" />
-                            <ComboBox AutomationProperties.AutomationId="AlbumLocationBox" ItemsSource="{x:Bind ViewModel.LocationChoices, Mode=OneWay}" SelectedItem="{x:Bind ViewModel.SelectedAlbumLocation, Mode=TwoWay}" DisplayMemberPath="Name" HorizontalAlignment="Stretch" />
+                            <Grid ColumnSpacing="8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <ComboBox AutomationProperties.AutomationId="AlbumLocationBox" ItemsSource="{x:Bind ViewModel.LocationChoices, Mode=OneWay}" SelectedItem="{x:Bind ViewModel.SelectedAlbumLocation, Mode=TwoWay}" DisplayMemberPath="Name" HorizontalAlignment="Stretch" VerticalAlignment="Center" />
+                                <Button Grid.Column="1" AutomationProperties.AutomationId="ApplyLocationButton" Content="Apply to all" Command="{x:Bind ViewModel.ApplyLocationCommand}" ToolTipService.ToolTip="Set Location on every item in this album" VerticalAlignment="Center" />
+                            </Grid>
 
                             <TextBlock Text="Owner" Style="{StaticResource FieldLabelStyle}" />
-                            <ComboBox AutomationProperties.AutomationId="AlbumOwnerBox" ItemsSource="{x:Bind ViewModel.OwnerChoices, Mode=OneWay}" SelectedItem="{x:Bind ViewModel.SelectedAlbumOwner, Mode=TwoWay}" DisplayMemberPath="Name" HorizontalAlignment="Stretch" />
+                            <Grid ColumnSpacing="8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <ComboBox AutomationProperties.AutomationId="AlbumOwnerBox" ItemsSource="{x:Bind ViewModel.OwnerChoices, Mode=OneWay}" SelectedItem="{x:Bind ViewModel.SelectedAlbumOwner, Mode=TwoWay}" DisplayMemberPath="Name" HorizontalAlignment="Stretch" VerticalAlignment="Center" />
+                                <Button Grid.Column="1" AutomationProperties.AutomationId="ApplyOwnerButton" Content="Apply to all" Command="{x:Bind ViewModel.ApplyOwnerCommand}" ToolTipService.ToolTip="Set Owner on every item in this album" VerticalAlignment="Center" />
+                            </Grid>
 
                             <TextBlock Text="Tags" Style="{StaticResource FieldLabelStyle}" />
-                            <DropDownButton
-                                AutomationProperties.AutomationId="AlbumTagsPicker"
-                                HorizontalAlignment="Stretch"
-                                HorizontalContentAlignment="Left">
+                            <Grid ColumnSpacing="8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <DropDownButton
+                                    AutomationProperties.AutomationId="AlbumTagsPicker"
+                                    HorizontalAlignment="Stretch"
+                                    HorizontalContentAlignment="Left"
+                                    VerticalAlignment="Center">
                                 <TextBlock Text="{x:Bind ViewModel.AlbumTagSummary, Mode=OneWay}" TextTrimming="CharacterEllipsis" />
                                 <DropDownButton.Flyout>
                                     <Flyout Placement="BottomEdgeAlignedLeft">
@@ -378,8 +405,10 @@
                                             </ScrollViewer>
                                         </StackPanel>
                                     </Flyout>
-                                </DropDownButton.Flyout>
-                            </DropDownButton>
+                                    </DropDownButton.Flyout>
+                                </DropDownButton>
+                                <Button Grid.Column="1" AutomationProperties.AutomationId="ApplyTagsButton" Content="Apply to all" Command="{x:Bind ViewModel.ApplyTagsCommand}" ToolTipService.ToolTip="Replace the tags on every item in this album" VerticalAlignment="Center" />
+                            </Grid>
 
                             <TextBlock Text="Cover" Style="{StaticResource FieldLabelStyle}" />
                             <TextBox AutomationProperties.AutomationId="AlbumCoverBox" Text="{x:Bind ViewModel.CoverText, Mode=OneWay}" IsReadOnly="True" />
