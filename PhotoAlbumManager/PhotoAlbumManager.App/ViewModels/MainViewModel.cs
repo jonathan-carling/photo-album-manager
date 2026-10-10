@@ -429,6 +429,113 @@ public partial class MainViewModel : ObservableObject
         StatusText = "Date taken set from the file.";
     }
 
+    [RelayCommand(CanExecute = nameof(CanApplyToItems))]
+    private async Task ApplyDateFromAsync()
+    {
+        if (_document is null)
+            return;
+
+        PullEditorIntoDocument();
+        var value = (_document.Date?.From ?? "").Trim();
+        if (!AlbumDateText.IsValidOrEmpty(value))
+        {
+            await _ui.ShowMessageAsync("Apply to all", "Album date from must use yyyy-MM-dd HH:mm:ss.");
+            return;
+        }
+
+        if (!await ConfirmApplyAsync("Date taken", "Date from"))
+            return;
+
+        foreach (var item in _document.Items)
+            item.DateTaken = value;
+
+        SyncAppliedItemFields();
+        MarkEdited();
+        StatusText = "Date taken updated on every item. Save the album to keep it.";
+    }
+
+    [RelayCommand(CanExecute = nameof(CanApplyToItems))]
+    private Task ApplyLocationAsync() =>
+        ApplyTextToItemsAsync("Location", (item, value) => item.Location = value, () => _document!.Location ?? "");
+
+    [RelayCommand(CanExecute = nameof(CanApplyToItems))]
+    private Task ApplyOwnerAsync() =>
+        ApplyTextToItemsAsync("Owner", (item, value) => item.Owner = value, () => _document!.Owner ?? "");
+
+    [RelayCommand(CanExecute = nameof(CanApplyToItems))]
+    private async Task ApplyTagsAsync()
+    {
+        if (_document is null)
+            return;
+
+        PullEditorIntoDocument();
+        if (!await ConfirmApplyAsync("tags", "tags"))
+            return;
+
+        var tags = _document.Tags.ToList();
+        foreach (var item in _document.Items)
+            item.Tags = tags.ToList();
+
+        SyncAppliedItemFields();
+        MarkEdited();
+        StatusText = "Tags updated on every item. Save the album to keep it.";
+    }
+
+    private async Task ApplyTextToItemsAsync(
+        string propertyName,
+        Action<AlbumItem, string> assign,
+        Func<string> albumValue)
+    {
+        if (_document is null)
+            return;
+
+        PullEditorIntoDocument();
+        if (!await ConfirmApplyAsync(propertyName, propertyName))
+            return;
+
+        var value = albumValue();
+        foreach (var item in _document.Items)
+            assign(item, value);
+
+        SyncAppliedItemFields();
+        MarkEdited();
+        StatusText = $"{propertyName} updated on every item. Save the album to keep it.";
+    }
+
+    private Task<bool> ConfirmApplyAsync(string itemProperty, string albumProperty) =>
+        _ui.ConfirmAsync(
+            "Apply to all",
+            $"This replaces {itemProperty} on every item in this album with the album {albumProperty}.",
+            "Continue");
+
+    private void SyncAppliedItemFields()
+    {
+        foreach (var item in Items)
+        {
+            item.DateTaken = item.Model.DateTaken;
+            item.Location = item.Model.Location;
+            item.Owner = item.Model.Owner;
+            item.TagsText = TagList.Format(item.Model.Tags);
+        }
+
+        if (SelectedItem is null)
+            return;
+
+        _suspend = true;
+        try
+        {
+            ItemDateTakenText = SelectedItem.Model.DateTaken;
+            SelectedItemLocation = MatchChoice(LocationChoices, SelectedItem.Model.Location);
+            SelectedItemOwner = MatchChoice(OwnerChoices, SelectedItem.Model.Owner);
+            RebuildChoices(ItemTagChoices, _tagCatalog, SelectedItem.Model.Tags);
+            ItemTagSummary = FormatSummary(ItemTagChoices);
+        }
+        finally
+        {
+            _suspend = false;
+        }
+    }
+
     [RelayCommand(CanExecute = nameof(CanRefresh))]
     private async Task RefreshAsync()
     {
@@ -1554,6 +1661,10 @@ public partial class MainViewModel : ObservableObject
         SetCoverCommand.NotifyCanExecuteChanged();
         RemoveItemCommand.NotifyCanExecuteChanged();
         UseFileDateTakenCommand.NotifyCanExecuteChanged();
+        ApplyDateFromCommand.NotifyCanExecuteChanged();
+        ApplyLocationCommand.NotifyCanExecuteChanged();
+        ApplyOwnerCommand.NotifyCanExecuteChanged();
+        ApplyTagsCommand.NotifyCanExecuteChanged();
         RefreshCommand.NotifyCanExecuteChanged();
         ManageTagsCommand.NotifyCanExecuteChanged();
         ManagePeopleCommand.NotifyCanExecuteChanged();
@@ -1577,6 +1688,8 @@ public partial class MainViewModel : ObservableObject
     private bool CanRemoveItem() => SelectedItem is not null && !IsLoadingItems;
 
     private bool CanUseFileDateTaken() => SelectedItem is not null && !IsLoadingItems;
+
+    private bool CanApplyToItems() => _document is { Items.Count: > 0 } && !IsLoadingItems;
 
     private bool CanRefresh() => _store is not null;
 
